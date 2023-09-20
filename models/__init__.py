@@ -12,7 +12,7 @@ from models.amenity import Amenity
 from models.review import Review
 
 
-if os.getenv(HBNB_TYPE_STORAGE) == "db":
+if os.getenv("HBNB_TYPE_STORAGE") == "db":
     storage = DBStorage()
     storage.reload()
 else:
