@@ -39,7 +39,7 @@ class DBStorage:
         """queries database to retrieve all objs or objs of a class"""
         dictionary = {}
         if cls != None:
-            objs = self.__session.query(eval(cls)).all()
+            objs = self.__session.query((cls)).all()
             for obj in objs:
                 key = "{}.{}".format(obj.__class__.__name__, obj.id)
                 dictionary[key] = obj
@@ -54,7 +54,10 @@ class DBStorage:
     def new(self, obj):
         """adds object to the current db session"""
         if obj:
-            self.__session.add(obj)
+            try:
+                self.__session.add(obj)
+            except:
+                pass
 
     def save(self):
         """ commits changes of the current db session"""

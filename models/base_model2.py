@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 """This module defines a base class for all models in our hbnb clone"""
 import uuid
-import os
 from datetime import datetime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, DateTime, String
@@ -15,23 +14,23 @@ class BaseModel:
     created_at = Column(DateTime, default=datetime.utcnow(), nullable=False)
     updated_at = Column(DateTime, nullable=False, default=datetime.utcnow())
     def __init__(self, *args, **kwargs):
-            """Instatntiates a new model"""
-            from models import storage
+        """class constructor"""
+        if kwargs:
+            for key, value in kwargs.items():
+                if key == "__class__":
+                    pass
+                elif "updated_at" == key:
+                    self.updated_at = datetime.strptime(
+                        kwargs["updated_at"], "%Y-%m-%dT%H:%M:%S.%f")
+                elif "created_at" == key:
+                    self.created_at = datetime.strptime(
+                        kwargs["created_at"], "%Y-%m-%dT%H:%M:%S.%f")
+                else:
+                    setattr(self, key, value)
+        else:
             self.id = str(uuid.uuid4())
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
-            if os.getenv('HBNB_TYPE_STORAGE') != 'db':
-                storage.new(self)
-            if kwargs:
-                if 'updated_at' in kwargs:
-                    kwargs['updated_at'] = datetime.strptime(
-                        kwargs['updated_at'], '%Y-%m-%dT%H:%M:%S.%f')
-                if 'created_at' in kwargs:
-                    kwargs['created_at'] = datetime.strptime(
-                        kwargs['created_at'], '%Y-%m-%dT%H:%M:%S.%f')
-                if '__class__' in kwargs:
-                    del kwargs['__class__']
-                self.__dict__.update(kwargs)
 
 
     def __str__(self):
