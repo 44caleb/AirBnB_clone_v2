@@ -60,5 +60,6 @@ class BaseModel:
 
 
     def delete(self):
+        """deletes object"""
         from models import storage
         storage.delete(self)

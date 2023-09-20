@@ -4,6 +4,13 @@
 
 import os
 from sqlalchemy import create_engine
+from models.base_model import Base
+from models.state import State
+from models.city import City
+from models.place import Place
+from models.review import Review
+from models.user import User
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 
 class DBStorage:
@@ -27,3 +34,40 @@ class DBStorage:
 
         if env == "test":
             Base.metadata.drop_all(self.__engine)
+        
+    def all(self, cls=None):
+        """queries database to retrieve all objs or objs of a class"""
+        dictionary = {}
+        if cls != None:
+            objs = self.__session.query(eval(cls)).all()
+            for obj in objs:
+                key = "{}.{}".format(obj.__class__.__name__, obj.id)
+                dictionary[key] = obj
+        else:
+            for subclass in Base.__subclasses__():
+                objs = self.__session.query(subclass).all()
+                for obj in objs:
+                    key = "{}.{}".format(obj.__class__.__name__, obj.id)
+                    dictionary[key] = obj
+        return dictionary
+        
+    def new(self, obj):
+        """adds object to the current db session"""
+        if obj:
+            self.__session.add(obj)
+
+    def save(self):
+        """ commits changes of the current db session"""
+        self.__session.commit()
+
+    def delete(self, obj=None):
+        """deletes obj from current db session"""
+        if obj is not None:
+            self.__session.delete(obj)
+        
+    def reload(self):
+        """creates all tables in database"""
+        Base.metadata.create_all(engine)
+        Session = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        session = scoped_session(Session)
+        self.__session = Session()
